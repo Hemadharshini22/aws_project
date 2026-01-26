@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="main-container">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Account Statement</h2>
+        <a href="{{ url_for('dashboard') }}" class="btn" style="background: #6c757d; width: auto; display: inline-block; padding: 10px 20px;">← Back to Dashboard</a>
+    </div>
+
+    <div class="history-section">
+        <table class="clean-table">
+            <thead>
+                <tr>
+                    <th style="width: 25%;">Date & Time</th>
+                    <th style="width: 50%;">Transaction Type</th>
+                    <th style="width: 25%;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for txn in transactions %}
+                <tr>
+                    <td style="color: #666;">{{ txn.date }}</td>
+                    <td style="font-weight: bold; color: #333;">{{ txn.type }}</td>
+                    
+                    {% if txn.type == 'Deposit' or 'Received' in txn.type %}
+                        <td style="color: #28a745; font-weight: bold; font-size: 1.1rem;">
+                            + ${{ txn.amount }}
+                        </td>
+                    {% else %}
+                        <td style="color: #dc3545; font-weight: bold; font-size: 1.1rem;">
+                            - ${{ txn.amount }}
+                        </td>
+                    {% endif %}
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" style="text-align: center; padding: 30px; color: #999;">
+                        No transactions found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}

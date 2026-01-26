@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="box" style="max-width: 500px; margin: 0 auto;">
+        <h2>Withdraw Money</h2>
+        <form action="{{ url_for('withdraw') }}" method="POST">
+            <label>Amount ($)</label>
+            <input type="number" name="amount" min="1" required>
+            
+            <label>Confirm Password</label>
+            <input type="password" name="password" required>
+            
+            <button type="submit" style="background-color: #d9534f;">Withdraw Funds</button>
+        </form>
+        <br>
+        <a href="{{ url_for('dashboard') }}">Cancel</a>
+    </div>
+{% endblock %}

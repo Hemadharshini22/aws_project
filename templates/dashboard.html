@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="main-container">
+
+    <div class="welcome-banner">
+        <h2>Welcome, {{ user }}!</h2>
+        <p>Current Balance</p>
+        <h1 class="balance-text">${{ "{:,.2f}".format(balance) }}</h1>
+    </div>
+
+    <div class="card-grid">
+        
+        <div class="card">
+            <h3>Deposit</h3>
+            <p>Add funds to account</p>
+            <a href="{{ url_for('deposit') }}" class="btn btn-green">Go to Deposit</a>
+        </div>
+
+        <div class="card">
+            <h3>Withdraw</h3>
+            <p>Take money out</p>
+            <a href="{{ url_for('withdraw') }}" class="btn btn-yellow">Go to Withdraw</a>
+        </div>
+
+        <div class="card">
+            <h3>Transfer</h3>
+            <p>Send to a friend</p>
+            <a href="{{ url_for('transfer') }}" class="btn btn-blue">Go to Transfer</a>
+        </div>
+
+        <div class="card">
+            <h3>Statement</h3>
+            <p>View history</p>
+            <a href="{{ url_for('statement') }}" class="btn btn-gray">View Statement</a>
+        </div>
+
+    </div>
+
+    <div class="history-section">
+        <h3>Recent Transactions</h3>
+        <table class="clean-table">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for txn in transactions %}
+                <tr>
+                    <td>{{ txn.type }}</td>
+                    <td>{{ txn.date }}</td>
+                    
+                    {% if txn.type == 'Deposit' or 'Received' in txn.type %}
+                        <td style="color: green; font-weight: bold;">+ ${{ txn.amount }}</td>
+                    {% else %}
+                        <td style="color: red; font-weight: bold;">- ${{ txn.amount }}</td>
+                    {% endif %}
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" style="text-align: center; color: #999;">No transactions yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}

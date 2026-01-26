@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="box" style="max-width: 500px; margin: 0 auto;">
+        <h2>Transfer Money</h2>
+        <p>Send money instantly to another user.</p>
+        
+        <form action="{{ url_for('transfer') }}" method="POST">
+            <label>Receiver's Username</label>
+            <input type="text" name="receiver" placeholder="e.g. john" required>
+
+            <label>Amount ($)</label>
+            <input type="number" name="amount" min="1" required>
+            
+            <label>Confirm Password</label>
+            <input type="password" name="password" required>
+            
+            <button type="submit" style="background-color: #6610f2;">Send Money</button>
+        </form>
+        <br>
+        <a href="{{ url_for('dashboard') }}">Cancel</a>
+    </div>
+{% endblock %}

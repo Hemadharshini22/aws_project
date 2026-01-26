@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="box" style="max-width: 500px; margin: 0 auto; text-align: center;">
+        <h2>My Profile</h2>
+        <p><strong>Username:</strong> {{ username }}</p>
+        <p><strong>Email:</strong> {{ email }}</p>
+        <p><strong>Status:</strong> Active</p>
+        <br>
+        <a href="{{ url_for('dashboard') }}"><button>Back to Dashboard</button></a>
+    </div>
+{% endblock %}

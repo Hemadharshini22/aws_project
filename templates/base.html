@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capestone Bank</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=3">
+</head>
+<body>
+
+    <nav>
+        <div style="font-size: 1.2rem; font-weight: bold;">Capestone Bank</div>
+        
+        <div>
+            {% if session.get('user') %}
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('contact') }}">Contact Us</a> 
+                <a href="{{ url_for('profile') }}">Profile</a>     
+                <a href="{{ url_for('logout') }}" style="background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 4px;">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Login</a>
+                <a href="{{ url_for('register') }}">Register</a>
+                
+                <a href="{{ url_for('admin_login') }}" style="background: #0056b3; color: white; padding: 5px 10px; border-radius: 4px; margin-left: 10px; text-decoration: none;">Admin Login</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container" style="padding-bottom: 0;">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    {% block content %}{% endblock %}
+
+</body>
+</html>

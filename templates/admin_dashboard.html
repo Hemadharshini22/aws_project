@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="padding: 20px;">
+
+    <h1 style="border-bottom: 2px solid #333; padding-bottom: 10px;">Admin Dashboard</h1>
+    <a href="{{ url_for('logout') }}" style="background: red; color: white; padding: 5px 10px; text-decoration: none;">Logout</a>
+
+    <br><br>
+
+    <div style="display: flex; gap: 20px;">
+        
+        <div style="border: 1px solid #ccc; padding: 15px; width: 200px;">
+            <h3>Total Users</h3>
+            <h2>{{ total_users }}</h2>
+        </div>
+
+        <div style="border: 1px solid #ccc; padding: 15px; width: 200px;">
+            <h3>Total Money</h3>
+            <h2>${{ total_money }}</h2>
+        </div>
+
+    </div> <br><hr><br>
+
+    <h3 style="color: darkred;">FRAUD ALERTS (High Value or Frequent)</h3>
+    <table border="1" cellpadding="10" style="width: 100%; border-collapse: collapse;">
+        <tr style="background: #f0f0f0;">
+            <th>User</th>
+            <th>Alert Type</th>
+            <th>Details</th>
+            <th>System Status</th>
+        </tr>
+
+        {% for name, info in all_users.items() %}
+            {% for txn in info.transactions %}
+                {% if txn.amount >= 5000 %}
+                <tr>
+                    <td><b>{{ name }}</b></td>
+                    <td style="color: red; font-weight: bold;">HIGH VALUE</td>
+                    <td>${{ txn.amount }}</td>
+                    <td style="color: red;">Suspicious Activity</td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+
+        {% for name, info in all_users.items() %}
+            {% if info.transactions|length > 5 %}
+            <tr>
+                <td><b>{{ name }}</b></td>
+                <td style="color: red; font-weight: bold;">HIGH FREQUENCY</td>
+                <td>{{ info.transactions|length }} Transactions</td>
+                <td style="color: red;">Suspicious Activity</td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+
+    <br><hr><br>
+
+    <h3>All User Database</h3>
+    <table border="1" cellpadding="10" style="width: 100%; border-collapse: collapse;">
+        <tr style="background: #eee;">
+            <th>Username</th>
+            <th>Email</th>
+            <th>Balance</th>
+        </tr>
+        {% for name, info in all_users.items() %}
+            {% if name != 'admin' %}
+            <tr>
+                <td>{{ name }}</td>
+                <td>{{ info.email }}</td>
+                <td>${{ info.balance }}</td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="main-container">
+    <div class="box" style="max-width: 400px; margin: 50px auto; border-top: #343a40;">
+        <h2 style="text-align: center; color: #343a40;">Admin Portal</h2>
+        <p style="text-align: center; color: #666; margin-bottom: 20px;">Restricted Access</p>
+        
+        <form action="{{ url_for('admin_login') }}" method="POST">
+            <label style="font-weight: bold;">Admin Username</label>
+            <input type="text" name="username" placeholder="Enter admin username" required>
+            
+            <label style="font-weight: bold;">Password</label>
+            <input type="password" name="password" placeholder="Enter password" required>
+            
+            <button type="submit" class="btn btn-dark" style="background-color: #343a40; color: white;">Login as Admin</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

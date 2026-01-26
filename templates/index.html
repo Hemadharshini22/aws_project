@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div style="text-align: center; padding-top: 80px;">
+        
+        <h1 style="font-size: 4rem; margin-bottom: 10px; color: #0056b3;">Capestone Bank</h1>
+        
+        <p style="font-size: 1.5rem; color: #555; margin-bottom: 40px;">
+            The easiest way to manage your money.
+        </p>
+
+        <div style="max-width: 220px; margin: 0 auto;">
+            <a href="{{ url_for('register') }}" style="text-decoration: none;">
+                <button style="padding: 15px; font-size: 1.2rem; border-radius: 30px; box-shadow: 0 4px 15px rgba(0,86,179,0.2);">
+                    Open Account
+                </button>
+            </a>
+        </div>
+
+        <br><br>
+
+        <p style="color: #777;">
+            Already have an account? 
+            <a href="{{ url_for('login') }}" style="color: #0056b3; font-weight: bold;">Login here</a>
+        </p>
+
+    </div>
+{% endblock %}
