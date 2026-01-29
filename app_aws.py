@@ -148,8 +148,7 @@ def dashboard():
     if not user: return redirect(url_for('login'))
     
     recent = user.get('transactions', [])[-5:][::-1]
-    return render_template('dashboard.html', user=session['user'], balance=user['balance'], transactions=recent)
-
+    return render_template('dashboard.html', user=session['user'], balance=float(user['balance']), transactions=recent)
 @app.route('/deposit', methods=['GET', 'POST'])
 def deposit():
     username = session.get('user')
