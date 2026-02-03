@@ -10,7 +10,7 @@ users_db = {
     "admin": {
         "password": "admin123",
         "email": "admin@capstonebank.com",
-        "balance": 1000000.0,  # Admin starts with $1 Million
+        "balance": 1000000.0,  # Admin starts with $1 Million (excluded from stats)
         "transactions": []
     }
 } 
@@ -35,7 +35,7 @@ def home():
         return redirect(url_for('dashboard'))
     return render_template('index.html')
 
-# --- ADMIN ROUTES (NEW) ---
+# --- ADMIN ROUTES (UPDATED FOR SCENARIOS 1, 2 & 3) ---
 
 @app.route('/admin_login', methods=['GET', 'POST'])
 def admin_login():
@@ -59,14 +59,36 @@ def admin_dashboard():
     if session.get('user') != 'admin' or session.get('role') != 'admin':
         return redirect(url_for('admin_login'))
     
-    # Calculate totals for the dashboard cards
-    total_users = len(users_db) - 1  # Subtract 1 to exclude the admin
-    total_money = sum(user['balance'] for user in users_db.values())
+    # 1. Calculate Standard Stats (excluding admin)
+    total_users = 0
+    total_money = 0
     
+    for username, data in users_db.items():
+        if username == 'admin': continue # Skip admin account in stats
+        total_users += 1
+        total_money += data['balance']
+
+    # --- SCENARIO 2 LOGIC: Manager Report ---
+    # Calculate Average User Balance
+    avg_balance = total_money / total_users if total_users > 0 else 0
+
+    # --- SCENARIO 3 LOGIC: Compliance Monitor ---
+    # Rule: Bank must have at least $50,000 in reserves
+    if total_money >= 50000:
+        compliance_status = "PASSED - Healthy Reserves"
+        compliance_color = "green"
+    else:
+        compliance_status = "ALERT - Regulatory Breach (<$50k)"
+        compliance_color = "red"
+    
+    # Pass all variables to the HTML
     return render_template('admin_dashboard.html', 
                            total_users=total_users, 
                            total_money=total_money, 
-                           all_users=users_db)
+                           all_users=users_db,
+                           avg_balance=avg_balance,             # For Scenario 2
+                           compliance_status=compliance_status, # For Scenario 3
+                           compliance_color=compliance_color)   # For Scenario 3
 
 # --- STANDARD USER ROUTES ---
 

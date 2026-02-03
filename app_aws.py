@@ -83,14 +83,29 @@ def admin_dashboard():
     response = users_table.scan()
     all_users = response.get('Items', [])
     
+    # 1. Calculate Totals
     total_users = len(all_users)
     total_money = sum(float(user['balance']) for user in all_users)
     users_dict = {u['username']: u for u in all_users}
     
+    # 2. Calculate Average (Required for Scenario 2)
+    avg_balance = total_money / total_users if total_users > 0 else 0
+
+    # 3. Calculate Compliance (Required for Scenario 3)
+    if total_money >= 50000:
+        compliance_status = "PASSED - Healthy Reserves"
+        compliance_color = "green"
+    else:
+        compliance_status = "ALERT - Regulatory Breach (<$50k)"
+        compliance_color = "red"
+
     return render_template('admin_dashboard.html', 
                            total_users=total_users, 
                            total_money=total_money, 
-                           all_users=users_dict)
+                           all_users=users_dict,
+                           avg_balance=avg_balance,             # Added this
+                           compliance_status=compliance_status, # Added this
+                           compliance_color=compliance_color)   # Added this
 
 # --- USER ROUTES ---
 
@@ -149,6 +164,7 @@ def dashboard():
     
     recent = user.get('transactions', [])[-5:][::-1]
     return render_template('dashboard.html', user=session['user'], balance=float(user['balance']), transactions=recent)
+
 @app.route('/deposit', methods=['GET', 'POST'])
 def deposit():
     username = session.get('user')
