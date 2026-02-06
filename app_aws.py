@@ -257,7 +257,10 @@ def transfer():
 
 @app.route('/statement')
 def statement():
-    return redirect(url_for('dashboard'))
+    user = get_user_from_db(session.get('user'))
+    if not user: return redirect(url_for('login'))
+    # Show statement page (newest transactions first)
+    return render_template('statement.html', transactions=user.get('transactions', [])[::-1])
 
 @app.route('/profile')
 def profile():
