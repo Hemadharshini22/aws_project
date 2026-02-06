@@ -268,6 +268,10 @@ def profile():
     if not user: return redirect(url_for('login'))
     return render_template('profile.html', username=session['user'], email=user['email'])
 
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')
+
 @app.route('/logout')
 def logout():
     session.clear()
