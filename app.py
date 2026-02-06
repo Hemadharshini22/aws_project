@@ -2,15 +2,14 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = 'secret_key_123'  # Needed for login sessions
+app.secret_key = 'secret_key_123'  
 
 # --- DATABASE (Dictionary) ---
-# I added the ADMIN user here so it exists when you start the app.
 users_db = {
     "admin": {
         "password": "admin123",
-        "email": "admin@capstonebank.com",
-        "balance": 1000000.0,  # Admin starts with $1 Million (excluded from stats)
+        "email": "admin@skybank.com",
+        "balance": 1000000.0,  
         "transactions": []
     }
 } 
@@ -35,7 +34,7 @@ def home():
         return redirect(url_for('dashboard'))
     return render_template('index.html')
 
-# --- ADMIN ROUTES (UPDATED FOR SCENARIOS 1, 2 & 3) ---
+# --- ADMIN ROUTES ---
 
 @app.route('/admin_login', methods=['GET', 'POST'])
 def admin_login():
@@ -43,10 +42,10 @@ def admin_login():
         username = request.form['username']
         password = request.form['password']
         
-        # Check specifically for admin
+        # Check  admin credentials
         if username == 'admin' and users_db.get('admin')['password'] == password:
             session['user'] = 'admin'
-            session['role'] = 'admin' # Mark as Admin
+            session['role'] = 'admin' 
             return redirect(url_for('admin_dashboard'))
         else:
             flash('Invalid Admin Credentials', 'error')
@@ -55,25 +54,22 @@ def admin_login():
 
 @app.route('/admin_dashboard')
 def admin_dashboard():
-    # Security: Kick out if not admin
     if session.get('user') != 'admin' or session.get('role') != 'admin':
         return redirect(url_for('admin_login'))
     
-    # 1. Calculate Standard Stats (excluding admin)
+    # 1. Calculate Standard Stats 
     total_users = 0
     total_money = 0
     
     for username, data in users_db.items():
-        if username == 'admin': continue # Skip admin account in stats
+        if username == 'admin': continue 
         total_users += 1
         total_money += data['balance']
 
-    # --- SCENARIO 2 LOGIC: Manager Report ---
-    # Calculate Average User Balance
+    # 2. Manager Report Logic 
     avg_balance = total_money / total_users if total_users > 0 else 0
 
-    # --- SCENARIO 3 LOGIC: Compliance Monitor ---
-    # Rule: Bank must have at least $50,000 in reserves
+    # 3. Compliance Monitor Logic
     if total_money >= 50000:
         compliance_status = "PASSED - Healthy Reserves"
         compliance_color = "green"
@@ -81,14 +77,13 @@ def admin_dashboard():
         compliance_status = "ALERT - Regulatory Breach (<$50k)"
         compliance_color = "red"
     
-    # Pass all variables to the HTML
     return render_template('admin_dashboard.html', 
                            total_users=total_users, 
                            total_money=total_money, 
                            all_users=users_db,
-                           avg_balance=avg_balance,             # For Scenario 2
-                           compliance_status=compliance_status, # For Scenario 3
-                           compliance_color=compliance_color)   # For Scenario 3
+                           avg_balance=avg_balance,             
+                           compliance_status=compliance_status, 
+                           compliance_color=compliance_color)   
 
 # --- STANDARD USER ROUTES ---
 
@@ -102,6 +97,7 @@ def register():
         if username in users_db:
             flash('Username already taken.', 'error')
         else:
+            # Create new user
             users_db[username] = {
                 'password': password,
                 'email': email,
@@ -121,7 +117,7 @@ def login():
         user = users_db.get(username)
         if user and user['password'] == password:
             session['user'] = username
-            session['role'] = 'user' # Mark as Normal User
+            session['role'] = 'user' 
             return redirect(url_for('dashboard'))
         else:
             flash('Wrong username or password.', 'error')
@@ -134,13 +130,13 @@ def logout():
 
 @app.route('/dashboard')
 def dashboard():
-    # If admin tries to go here, send them to their own dashboard
     if session.get('role') == 'admin':
         return redirect(url_for('admin_dashboard'))
 
     user = get_logged_in_user()
     if not user: return redirect(url_for('login'))
     
+    # Show last 5 transactions
     recent = user['transactions'][-5:][::-1]
     return render_template('dashboard.html', user=session['user'], balance=user['balance'], transactions=recent)
 
@@ -150,19 +146,22 @@ def deposit():
     if not user: return redirect(url_for('login'))
 
     if request.method == 'POST':
-        amount = float(request.form['amount'])
-        password = request.form['password']
+        try:
+            amount = float(request.form['amount'])
+            password = request.form['password']
 
-        if user['password'] != password:
-            flash('Wrong password. Deposit failed.', 'error')
-        elif amount <= 0:
-            flash('Amount must be positive.', 'error')
-        else:
-            user['balance'] += amount
-            txn = {'type': 'Deposit', 'amount': amount, 'date': datetime.now().strftime("%Y-%m-%d %H:%M")}
-            user['transactions'].append(txn)
-            flash(f'Deposited ${amount}', 'success')
-            return redirect(url_for('dashboard'))
+            if user['password'] != password:
+                flash('Wrong password. Deposit failed.', 'error')
+            elif amount <= 0:
+                flash('Amount must be positive.', 'error')
+            else:
+                user['balance'] += amount
+                txn = {'type': 'Deposit', 'amount': amount, 'date': datetime.now().strftime("%Y-%m-%d %H:%M")}
+                user['transactions'].append(txn)
+                flash(f'Deposited ${amount}', 'success')
+                return redirect(url_for('dashboard'))
+        except ValueError:
+            flash('Invalid amount entered.', 'error')
             
     return render_template('deposit.html')
 
@@ -172,21 +171,24 @@ def withdraw():
     if not user: return redirect(url_for('login'))
 
     if request.method == 'POST':
-        amount = float(request.form['amount'])
-        password = request.form['password']
+        try:
+            amount = float(request.form['amount'])
+            password = request.form['password']
 
-        if user['password'] != password:
-            flash('Wrong password. Withdraw failed.', 'error')
-        elif amount > user['balance']:
-            flash('Insufficient funds.', 'error')
-        elif amount <= 0:
-            flash('Amount must be positive.', 'error')
-        else:
-            user['balance'] -= amount
-            txn = {'type': 'Withdrawal', 'amount': amount, 'date': datetime.now().strftime("%Y-%m-%d %H:%M")}
-            user['transactions'].append(txn)
-            flash(f'Withdrew ${amount}', 'success')
-            return redirect(url_for('dashboard'))
+            if user['password'] != password:
+                flash('Wrong password. Withdraw failed.', 'error')
+            elif amount > user['balance']:
+                flash('Insufficient funds.', 'error')
+            elif amount <= 0:
+                flash('Amount must be positive.', 'error')
+            else:
+                user['balance'] -= amount
+                txn = {'type': 'Withdrawal', 'amount': amount, 'date': datetime.now().strftime("%Y-%m-%d %H:%M")}
+                user['transactions'].append(txn)
+                flash(f'Withdrew ${amount}', 'success')
+                return redirect(url_for('dashboard'))
+        except ValueError:
+             flash('Invalid amount entered.', 'error')
             
     return render_template('withdraw.html')
 
@@ -196,39 +198,44 @@ def transfer():
     if not user: return redirect(url_for('login'))
 
     if request.method == 'POST':
-        receiver_username = request.form['receiver']
-        amount = float(request.form['amount'])
-        password = request.form['password']
+        try:
+            receiver_username = request.form['receiver']
+            amount = float(request.form['amount'])
+            password = request.form['password']
 
-        if user['password'] != password:
-            flash('Wrong password. Transfer failed.', 'error')
-        elif amount > user['balance']:
-            flash('Insufficient funds.', 'error')
-        elif amount <= 0:
-            flash('Amount must be positive.', 'error')
-        elif receiver_username not in users_db:
-            flash(f'User "{receiver_username}" does not exist.', 'error')
-        elif receiver_username == session['user']:
-            flash('You cannot transfer money to yourself.', 'error')
-        else:
-            receiver = users_db[receiver_username]
-            
-            user['balance'] -= amount
-            user['transactions'].append({
-                'type': f'Transfer to {receiver_username}', 
-                'amount': amount, 
-                'date': datetime.now().strftime("%Y-%m-%d %H:%M")
-            })
-            
-            receiver['balance'] += amount
-            receiver['transactions'].append({
-                'type': f'Received from {session["user"]}', 
-                'amount': amount, 
-                'date': datetime.now().strftime("%Y-%m-%d %H:%M")
-            })
-            
-            flash(f'Successfully sent ${amount} to {receiver_username}', 'success')
-            return redirect(url_for('dashboard'))
+            if user['password'] != password:
+                flash('Wrong password. Transfer failed.', 'error')
+            elif amount > user['balance']:
+                flash('Insufficient funds.', 'error')
+            elif amount <= 0:
+                flash('Amount must be positive.', 'error')
+            elif receiver_username not in users_db:
+                flash(f'User "{receiver_username}" does not exist.', 'error')
+            elif receiver_username == session['user']:
+                flash('You cannot transfer money to yourself.', 'error')
+            else:
+                receiver = users_db[receiver_username]
+                
+                # Deduct from sender
+                user['balance'] -= amount
+                user['transactions'].append({
+                    'type': f'Transfer to {receiver_username}', 
+                    'amount': amount, 
+                    'date': datetime.now().strftime("%Y-%m-%d %H:%M")
+                })
+                
+                # Add to receiver
+                receiver['balance'] += amount
+                receiver['transactions'].append({
+                    'type': f'Received from {session["user"]}', 
+                    'amount': amount, 
+                    'date': datetime.now().strftime("%Y-%m-%d %H:%M")
+                })
+                
+                flash(f'Successfully sent ${amount} to {receiver_username}', 'success')
+                return redirect(url_for('dashboard'))
+        except ValueError:
+            flash('Invalid input.', 'error')
 
     return render_template('transfer.html')
 

@@ -1,4 +1,3 @@
-// Simple script to validate positive numbers for transactions
 document.addEventListener("DOMContentLoaded", function() {
     const forms = document.querySelectorAll("form");
     
